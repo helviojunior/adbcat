@@ -181,20 +181,14 @@ func (run LogcatRunner) Run() {
                 continue
             }
 
-            // Check if the tag is to be ignored
-            if slices.Contains(run.Logcat.IgnoreTags, entry.Tag) {
-                continue
-            }
-
-            // Check if the tag is not wanted if there are tags to be matched
-            if len(run.Logcat.Tags) > 0 && !slices.Contains(run.Logcat.Tags, entry.Tag) {
+            if run.CheckIgnore(entry) {
                 continue
             }
 
             // Print the logcat line
             //Check if is the same time/pid/level
             if entry.EqualTimePidLevel(lastLine) && currentEntry != nil {
-                currentEntry.Message += "\n" + entry.MSG
+                currentEntry.Message += "\n" + entry.Message
             }else{
                 currentEntry = &models.LogcatEntry{
                     Date:       entry.Date,
@@ -203,7 +197,7 @@ func (run LogcatRunner) Run() {
                     Tag:        entry.Tag,
                     PID:        entry.PID,
                     TID:        entry.TID,
-                    Message:    entry.MSG,
+                    Message:    entry.Message,
                 }
                 
             }
@@ -247,6 +241,33 @@ func (run LogcatRunner) Run() {
 
     wgLogcatReader.Wait()
     wgOutputWriter.Wait()
+}
+
+func (run LogcatRunner) CheckIgnore(logEntry adb.AdbLineEntry) bool {
+
+    txt := fmt.Sprintf("%s %s %s", logEntry.PID, logEntry.Tag, logEntry.Message)
+
+    // Check if the tag is to be included
+    if len(run.options.IncludeFilterList) > 0 {
+        for _, slug := range run.options.IncludeFilterList {
+            if strings.Contains(txt, slug) {
+                return false
+            }
+        }
+        return true
+    }
+
+    // Check if the tag is to be ignored
+    if len(run.options.ExcludeFilterList) > 0 {
+        for _, slug := range run.options.ExcludeFilterList {
+            if strings.Contains(txt, slug) {
+                return true
+            }
+        }
+    }
+
+
+    return false
 }
 
 func (run LogcatRunner) DispatchEntry(logEntry *models.LogcatEntry) {

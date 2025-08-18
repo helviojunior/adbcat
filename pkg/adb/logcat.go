@@ -11,8 +11,6 @@ import (
 type LogcatOptions struct {
     Packages   []string // The packages to filter for
     MinLevel   string   // The minimum log level to show
-    Tags       []string // The tags to filter for
-    IgnoreTags []string // The tags to ignore
 }
 
 // The struct to represent a logcat line
@@ -23,7 +21,7 @@ type AdbLineEntry struct {
     Tag   string
     PID   string
     TID   string
-    MSG   string
+    Message   string
 }
 
 var (
@@ -45,7 +43,7 @@ func ParseLogcatLine(line string) (entry AdbLineEntry, err error) {
         TID:   strings.TrimSpace(matches[4]),
         Level: strings.TrimSpace(matches[5]),
         Tag:   strings.TrimSpace(matches[6]),
-        MSG:   strings.TrimRight(strings.Replace(strings.TrimSpace(matches[7]), "\r", "", -1), "\n"),
+        Message:   strings.TrimRight(strings.Replace(strings.TrimSpace(matches[7]), "\r", "", -1), "\n"),
     }
 
     return entry, err
