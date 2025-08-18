@@ -41,11 +41,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y \
-            ca-certificates jq curl python3
-
-      - name: Update nmap protocols
-        run: |
-          python3 update_nmap_services.py
+            ca-certificates jq curl
 
       - uses: wangyoucao577/go-release-action@v1.33
         with:

@@ -42,11 +42,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y \
-            ca-certificates jq curl python3
-
-      - name: Update nmap protocols
-        run: |
-          python3 update_nmap_services.py
+            ca-certificates jq curl
 
       - name: Install adbcat at specific commit
         run: |
