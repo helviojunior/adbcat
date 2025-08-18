@@ -26,6 +26,9 @@ type Options struct {
     AdbBinPath string
 
     ClearOutput bool
+
+    ShowTime bool
+    ShowPid bool
 }
 
 // Logging is log related options

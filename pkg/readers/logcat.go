@@ -14,6 +14,7 @@ import (
     "time"
     "slices"
 
+    "github.com/fatih/color"
     "github.com/helviojunior/adbcat/pkg/models"
     "github.com/helviojunior/adbcat/pkg/log"
     "github.com/helviojunior/adbcat/pkg/adb"
@@ -279,6 +280,7 @@ func (run LogcatRunner) DispatchEntry(logEntry *models.LogcatEntry) {
         return
     }
 
-    logEntry.Print()
+    fmt.Fprintln(color.Output, logEntry.FormatAnsiString(run.options.ShowTime, run.options.ShowPid))
+
     logEntry.ToFile(run.logFile)
 }

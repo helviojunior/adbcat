@@ -26,6 +26,7 @@ var rootCmd = &cobra.Command{
 - adbcat logcat
 - adbcat logcat -o logcat.txt
 - adbcat logcat -p com.android.chrome
+- adbcat logcat --show-time --show-pid
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		

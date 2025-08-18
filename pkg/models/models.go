@@ -67,9 +67,19 @@ type LogcatEntry struct {
 
 
 func (entry LogcatEntry) ToAnsiString() string {
+    return entry.FormatAnsiString(true, true)
+}
 
-    time := formatTime(entry.Time)
-    pid := entry.GetFormattedPidTid()
+func (entry LogcatEntry) FormatAnsiString(showTime bool, showPid bool) string {
+
+    time := ""
+    if showTime {
+        time = formatTime(entry.Time)
+    }
+    pid := ""
+    if showPid {
+        pid = entry.GetFormattedPidTid()
+    }
     name := formatTag(entry.Tag)
 
     // Color the level based on the log level
@@ -79,12 +89,13 @@ func (entry LogcatEntry) ToAnsiString() string {
 
     prefix := time+pid+coloredName
     prefixLen := len(ascii.ScapeAnsi(prefix))
+    prefixLen2 := len(ascii.ScapeAnsi(prefix+coloredLevel))
     coloredMsg := ""
     for i, line := range strings.Split(entry.Message, "\n") {
         if i == 0 {
-            coloredMsg += prefix + coloredLevel + c1.Sprint(formatMsg(line))
+            coloredMsg += prefix + coloredLevel + c1.Sprint(formatMsg(line, prefixLen2))
         }else{
-            coloredMsg += fmt.Sprintf("\n%*s%s%s", prefixLen, "", coloredLevel, c1.Sprint(formatMsg(line)))
+            coloredMsg += fmt.Sprintf("\n%*s%s%s", prefixLen, "", coloredLevel, c1.Sprint(formatMsg(line, prefixLen2)))
         }
     }
 
@@ -95,7 +106,12 @@ func (entry LogcatEntry) ToString() string {
     
     time := formatTime(entry.Time)
     pid := entry.GetFormattedPidTid()
-    name := formatTag(entry.Tag)
+    name := entry.Tag
+
+    for len(name) < MaxLenTag {
+        name += " "
+    }
+
     level := fmt.Sprintf(" %s ", entry.Level)
 
     prefix := ascii.ScapeAnsi(time+pid+name)
@@ -192,13 +208,13 @@ func formatTag(tag string) string {
 }
 
 // Formats the message to have a fixed length
-func formatMsg(msg string) string {
+func formatMsg(msg string, prefixSize int) string {
     // Get the console width (3rd party because the stdlib does not provide a working solution for Windows)
     width, _ := consolesize.GetConsoleSize()
 
     // Calculate the maximum width for the message
-    maxWidthMsg := width - MaxLenTime - MaxLenPid - MaxLenPid - MaxLenTag - 5 // 5 = 3 spaces, 1 char for level and 1 char for -
-
+    //maxWidthMsg := width - MaxLenTime - MaxLenPid - MaxLenPid - MaxLenTag - 5 // 5 = 3 spaces, 1 char for level and 1 char for -
+    maxWidthMsg := width - prefixSize - 1
 
     // Add a space if the message is empty or does not start with a space
     if len(msg) == 0 || msg[0] != ' ' {

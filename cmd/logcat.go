@@ -31,6 +31,7 @@ Get colored and formatted Android logs
 - adbcat logcat
 - adbcat logcat -o logcat.txt
 - adbcat logcat -p com.android.chrome
+- adbcat logcat --show-time --show-pid
 `,
     PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
         var err error
@@ -153,4 +154,7 @@ func init() {
     logcatCmd.Flags().StringVarP(&opts.PackageName, "package", "p", "", "Application package name.")
 
     logcatCmd.Flags().StringVar(&opts.AdbBinPath, "adb-path", "", "Path to the ADB binary")
+
+    logcatCmd.PersistentFlags().BoolVar(&opts.ShowTime, "show-time", false, "Display time")
+    logcatCmd.PersistentFlags().BoolVar(&opts.ShowPid, "show-pid", false, "Displey PID/TID")
 }
