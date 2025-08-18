@@ -36,6 +36,7 @@ Examples:
 - adbcat logcat --show-time --show-pid
 
 
+
 Flags:
       --adb-path string    Path to the ADB binary
   -c, --clear              Clear the log before running
@@ -48,6 +49,8 @@ Flags:
   -l, --min-level string   Minimum log level to be displayed (V,D,I,W,E,F) (default 'V'). (default "V")
   -p, --package string     Application package name.
   -s, --serial string      Sevice serial number (adb -s)
+      --show-pid           Displey PID/TID
+      --show-time          Display time
 
 Global Flags:
   -D, --debug-log   Enable debug logging
