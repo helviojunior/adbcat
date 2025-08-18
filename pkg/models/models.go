@@ -107,11 +107,7 @@ func (entry LogcatEntry) ToString() string {
     
     time := formatTime(entry.Time)
     pid := entry.GetFormattedPidTid()
-    name := entry.Tag
-
-    for len(name) < MaxLenTag {
-        name += " "
-    }
+    name := fmt.Sprintf("%*s", MaxLenTag, entry.Tag) 
 
     level := fmt.Sprintf(" %s ", entry.Level)
 
