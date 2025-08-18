@@ -12,8 +12,6 @@ Check how to get last release by your Operational Systems procedures here [INSTA
 # Utilization
 
 ```
-$ adbcat logcat -h
-
         @                        @
          @.                     @
           @@     *@@@@@@#.    %@
@@ -27,22 +25,6 @@ $ adbcat logcat -h
  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- @@
- @@    _____   ________  __________ _________           __
- @@   /  _  \  \______ \ \______   \\_   ___ \ _____  _/  |_
- @@  /  /_\  \  |    |  \ |    |  _//    \  \/ \__  \ \   __\
- @@ /    |    \ |    |   \|    |   \\     \____ / __ \_|  |
- @@ \____|__  //_______  /|______  / \________/(______/|__|
- @@         \/         \/        \/   v dev-dev
-
-
-
-
-   logcat
-
-  Get colored and formatted Android logs
-
 Usage:
   adbcat logcat [flags]
 
@@ -51,6 +33,7 @@ Examples:
 - adbcat logcat
 - adbcat logcat -o logcat.txt
 - adbcat logcat -p com.android.chrome
+- adbcat logcat --show-time --show-pid
 
 
 Flags:
