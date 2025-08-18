@@ -2,7 +2,7 @@
 
 Makes `adb logcat` colored and adds the feature of being able to filter by app or keywords.
 
-![adbcat](images/adbcat1.png)
+![adbcat](images/adbcat.png)
 
 ## Get last release
 
