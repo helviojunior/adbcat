@@ -118,6 +118,10 @@ func (run LogcatRunner) Run() {
         os.Exit(1)
     }
 
+    if len(run.Logcat.Packages) > 0 {
+        pids = append(pids, "invalid")  // Create an pid to ignore all other packeges logs
+    }
+
     // Create a go function that every two seconds checks for the PIDs of the wanted packages
     stopChanPidWatchDog := make(chan bool)
     wgPidWatchDog := new(sync.WaitGroup)
