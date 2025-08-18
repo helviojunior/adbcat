@@ -1,0 +1,58 @@
+name: Go Install Check
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+        - .gitignore
+        - README.md
+        - LICENSE
+        - TODO
+        - Dockerfile
+        - images/*
+
+  pull_request:
+    branches: [main]
+    paths-ignore:
+        - .gitignore
+        - README.md
+        - LICENSE
+        - TODO
+        - Dockerfile
+        - images/*
+
+  #schedule:
+  #  - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.23"
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            ca-certificates jq curl python3
+
+      - name: Update nmap protocols
+        run: |
+          python3 update_nmap_services.py
+
+      - name: Install adbcat at specific commit
+        run: |
+          go install github.com/helviojunior/adbcat@${GITHUB_SHA}
+
+      - name: Verify Installation
+        run: |
+          adbcat version
+          
