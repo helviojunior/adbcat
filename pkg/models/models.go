@@ -53,6 +53,7 @@ var (
         "E": LevelError,
         "F": LevelFatal,
     }
+
 )
 
 type LogcatEntry struct {
@@ -87,7 +88,7 @@ func (entry LogcatEntry) FormatAnsiString(showTime bool, showPid bool) string {
     coloredLevel := colorTags[LevelMap[entry.Level]].Sprintf(" %s ", entry.Level)
     coloredName := c1.Sprintf("%s", name)
 
-    prefix := time+pid+coloredName
+    prefix := "\033[0m\033[1;90m" + time + pid + "\033[0m\033[1;90m\033[0m" + coloredName
     prefixLen := len(ascii.ScapeAnsi(prefix))
     prefixLen2 := len(ascii.ScapeAnsi(prefix+coloredLevel))
     coloredMsg := ""
