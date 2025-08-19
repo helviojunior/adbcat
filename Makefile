@@ -83,5 +83,13 @@ local: get-version	## Compila para a plataforma e arquitetura local detectada
 	GOOS=$$OS GOARCH=$$ARCH go build -ldflags "$$(cat ${TARGET}/.ldflags)" -o ${TARGET}/adbcat_$$OS\_$$ARCH || exit 1 ; \
 	echo "Done."
 
+install: get-version	## Compila para a plataforma e arquitetura local detectada
+	@OS=$$(uname | tr '[:upper:]' '[:lower:]') ; \
+	ARCH=$$(if [ "$$(uname -m)" = "x86_64" ]; then echo "amd64"; else echo "arm64"; fi) ; \
+	echo "Installing for $$OS ($$ARCH)..." ; \
+	rsync -av ${TARGET}/adbcat_$$OS\_$$ARCH /usr/local/sbin/adbcat || exit 1 ; \
+	chmod +x /usr/local/sbin/adbcat ; \
+	adbcat version
+
 all: ## Make Windows, Linux and Mac x86/x64 Binaries
 all: clean windows linux mac
