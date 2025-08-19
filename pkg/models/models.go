@@ -68,10 +68,10 @@ type LogcatEntry struct {
 
 
 func (entry LogcatEntry) ToAnsiString() string {
-    return entry.FormatAnsiString(true, true)
+    return entry.FormatAnsiString(true, true, true)
 }
 
-func (entry LogcatEntry) FormatAnsiString(showTime bool, showPid bool) string {
+func (entry LogcatEntry) FormatAnsiString(showTime bool, showPid bool, cutMessage bool) string {
 
     time := ""
     if showTime {
@@ -93,10 +93,16 @@ func (entry LogcatEntry) FormatAnsiString(showTime bool, showPid bool) string {
     prefixLen2 := len(ascii.ScapeAnsi(prefix+coloredLevel))
     coloredMsg := ""
     for i, line := range strings.Split(entry.Message, "\n") {
-        if i == 0 {
-            coloredMsg += prefix + coloredLevel + c1.Sprint(formatMsg(line, prefixLen2))
+        msg := ""
+        if cutMessage {
+            msg = formatMsg(line, prefixLen2)
         }else{
-            coloredMsg += fmt.Sprintf("\n%*s%s%s", prefixLen, "", coloredLevel, c1.Sprint(formatMsg(line, prefixLen2)))
+            msg = line
+        }
+        if i == 0 {
+            coloredMsg += prefix + coloredLevel + c1.Sprint(msg)
+        }else{
+            coloredMsg += fmt.Sprintf("\n%*s%s%s", prefixLen, "", coloredLevel, c1.Sprint(msg))
         }
     }
 
@@ -144,6 +150,19 @@ func (entry LogcatEntry) ToFile(fh *os.File) (err error) {
     return nil
 }
 
+// Writes a logcat line to a file
+func (entry LogcatEntry) ToAnsiFile(fh *os.File) (err error) {
+    if fh == nil {
+        return nil
+    }
+
+    _, err = fmt.Fprintf(fh, "%s\n", entry.FormatAnsiString(true, true, false))
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
 
 func (entry LogcatEntry) GetFormattedPidTid() string {
     pid := entry.PID

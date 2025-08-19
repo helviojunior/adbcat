@@ -318,7 +318,11 @@ func (run LogcatRunner) DispatchEntry(logEntry *models.LogcatEntry) {
         return
     }
 
-    fmt.Fprintln(color.Output, logEntry.FormatAnsiString(run.options.ShowTime, run.options.ShowPid))
+    fmt.Fprintln(color.Output, logEntry.FormatAnsiString(run.options.ShowTime, run.options.ShowPid, true))
 
-    logEntry.ToFile(run.logFile)
+    if run.options.UseAnsiLog {
+        logEntry.ToAnsiFile(run.logFile)
+    }else {
+        logEntry.ToFile(run.logFile)
+    }
 }

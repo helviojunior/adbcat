@@ -144,6 +144,7 @@ func init() {
     logcatCmd.PersistentFlags().StringSliceVar(&tmpExcludeFilter, "exclude", []string{}, "Exclude all messages with specified strings. You can specify multiple values by comma-separated terms or by repeating the flag. Use @filename to load from text file.")
     logcatCmd.PersistentFlags().StringSliceVar(&tmpIncludeFilter, "include", []string{}, "Include only messages with specified strings. You can specify multiple values by comma-separated terms or by repeating the flag. Use @filename to load from text file.")    
     logcatCmd.PersistentFlags().StringVarP(&opts.LogFile, "log-file", "o", "", "Write logcat output to file.")
+    logcatCmd.PersistentFlags().BoolVar(&opts.UseAnsiLog, "log-file-ansi", false, "Use ANSI colors at log file.")
     logcatCmd.PersistentFlags().StringVarP(&opts.MinLevel, "min-level", "l", "V", "Minimum log level to be displayed (V,D,I,W,E,F) (default 'V').")
 
     logcatCmd.PersistentFlags().BoolVarP(&opts.ClearOutput, "clear", "c", false, "Clear the log before running")

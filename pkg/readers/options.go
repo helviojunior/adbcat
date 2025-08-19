@@ -29,6 +29,8 @@ type Options struct {
 
     ShowTime bool
     ShowPid bool
+
+    UseAnsiLog bool
 }
 
 // Logging is log related options
@@ -60,5 +62,6 @@ func NewDefaultOptions() *Options {
         PackageName: "",
         AdbBinPath: "",
         ClearOutput: false,
+        UseAnsiLog: false,
     }
 }
