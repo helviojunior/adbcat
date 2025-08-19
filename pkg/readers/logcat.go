@@ -104,6 +104,18 @@ func (run LogcatRunner) Run() {
 
     pids := []string{}
 
+    _, err := run.ADBClient.ListDevices()
+    if err != nil {
+        log.Errorf("%s", err)
+        return
+    }
+
+    err = run.ADBClient.CheckConn()
+    if err != nil {
+        log.Errorf("%s", err)
+        return
+    }
+
     cmd := exec.CommandContext(run.ctx, run.ADBClient.BaseCmdLogcat[0], run.ADBClient.BaseCmdLogcat[1:]...)
 
     // Capture the output of the logcat command
@@ -136,17 +148,43 @@ func (run LogcatRunner) Run() {
                 // We got a stop signal, return
                 return
             default:
-                for _, slug := range run.Logcat.Packages {
-                    pid, err := run.ADBClient.GetPID(slug)
-                    if err != nil {
-                        log.Errorf("%s", err)
-                        os.Exit(1)
-                    }
+                if len(run.Logcat.Packages) > 0 {
+                    found := false
+                    message := true
+                    start := time.Now()
+                    nPids := []string{"invalid"}
+                    for !found {
 
-                    // Add the pid to the slice if it's not already there
-                    if !slices.Contains(pids, pid) {
-                        pids = append(pids, pid)
+                        for _, slug := range run.Logcat.Packages {
+                            pid, err := run.ADBClient.GetPID(slug)
+                            if err != nil {
+                                if message {
+                                    log.Warn("No processes found for the specified packages. Waiting 30 seconds for them to appear...")
+                                    message = false
+                                }
+                                found = false
+                            }else{
+                                found = true
+                                // Add the pid to the slice if it's not already there
+                                if !slices.Contains(nPids, pid) {
+                                    nPids = append(nPids, pid)
+                                }
+                            }
+                        }
+
+                        if !found {
+                            time.Sleep(300 * time.Millisecond)
+
+                            if time.Since(start) >= 30*time.Second {
+                                break
+                            }
+                        }
                     }
+                    if !found {
+                        log.Error("No processes found for the specified packages.")
+                        os.Exit(2)
+                    }
+                    pids = nPids
                 }
             }
 

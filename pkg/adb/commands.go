@@ -5,6 +5,8 @@ import (
     "regexp"
     "slices"
     "strings"
+
+    "github.com/helviojunior/adbcat/pkg/log"
 )
 
 var (
@@ -12,6 +14,8 @@ var (
     rePSOutput = regexp.MustCompile(`(\S+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\S)\s+(\S+)`)
     // Regex to parse out the slug of the 'adb dumsys' output
     reForegroundApp = regexp.MustCompile(`.*Recent #0: \S+{\S+ \S+ \S+ \S+:([\S.]+)}.*`)
+    // Regex to parse out the slug of the 'adb devices' output
+    reDevicesApp = regexp.MustCompile(`(.*)\s+(\S+)`)
 )
 
 // One line of the output from 'adb shell ps'
@@ -45,6 +49,20 @@ func (client *Client) GetPID(slug string) (pid string, err error) {
     return "", fmt.Errorf("no PID for '%s' found", slug)
 }
 
+// Runs 'adb shell ps' to check conectivity with device
+func (client *Client) CheckConn() (err error) {
+    processes, err := client.GetProcesses()
+    if err != nil {
+        return err
+    }
+
+    if len(processes) == 0 {
+        return fmt.Errorf("error checking device connection, do you have an connected device?")
+    }
+
+    return err
+}
+
 // Runs 'adb shell ps' and parses the output into a custom struct
 func (client *Client) GetProcesses() (processes []*Process, err error) {
     out, err := client.Run(10, "shell", "ps")
@@ -74,6 +92,42 @@ func (client *Client) GetProcesses() (processes []*Process, err error) {
     }
 
     return processes, err
+}
+
+// Returns a list of all packages installed on the device via 'adb shell pm list packages'
+func (client *Client) ListDevices() (devices []string, err error) {
+    out, err := client.Run(5, "devices")
+    if err != nil {
+        return nil, err
+    }
+
+    emulatorOnly := false
+    if slices.Contains(client.BaseCmd, "-e") {
+        emulatorOnly = true
+    }
+
+    devices = []string{}
+    for _, line := range strings.Split(out, "\n") {
+        if !strings.Contains(strings.ToLower(line), "list of devices attached") {
+            matches := reDevicesApp.FindStringSubmatch(line)
+            if len(matches) == 3 {
+                d1 := strings.TrimSpace(matches[1])
+                if d1 != "" && strings.Contains(matches[2], "device") {
+                    if emulatorOnly && !strings.Contains(strings.ToLower(d1), "emulator-") {
+                        log.Warnf("Ignoring non emulator device: %s", d1)
+                        continue
+                    }
+                    devices = append(devices, d1) 
+                }
+            }
+        }
+    }
+
+    if len(devices) == 0 {
+        return devices, fmt.Errorf("error parsing devices output, do you have an connected device?")
+    }
+
+    return devices, nil
 }
 
 // Returns a list of all packages installed on the device via 'adb shell pm list packages'
