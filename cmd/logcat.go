@@ -5,6 +5,7 @@ import (
     "strings"
     "errors"
     "fmt"
+    "os"
 
     "github.com/helviojunior/adbcat/internal/ascii"
     "github.com/helviojunior/adbcat/internal/tools"
@@ -122,6 +123,13 @@ Get colored and formatted Android logs
         runner, err = readers.NewRunner(*opts)
         if err != nil {
             return err
+        }
+
+        if opts.LogFile != "" && opts.ClearOutput {
+            err := os.Truncate(opts.LogFile, 0)
+            if err != nil {
+                return err
+            }
         }
 
         return nil
