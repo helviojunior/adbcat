@@ -26,7 +26,7 @@ type AdbLineEntry struct {
 
 var (
     // The regex to parse a logcat line
-    reLine = regexp.MustCompile(`(?i)(\d{2}-\d{2})\s(\d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+(\S){1}\s+([^\(:]*):\s+[\s]*([^\n]*)`)
+    reLine = regexp.MustCompile(`(?i)(\d{2}-\d{2})\s(\d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+(\S){1}\s+([^\(:]*):\s{0,1}([^\n]*)`)
 )
 
 // Parses a logcat line into a LogcatEntry struct
@@ -36,6 +36,12 @@ func ParseLogcatLine(line string) (entry AdbLineEntry, err error) {
         return entry, fmt.Errorf("could not parse logcat line")
     }
 
+    msg := strings.TrimRight(matches[7], " \t\n\r\f\v")
+    msg = strings.Replace(msg, "\r", "", -1)
+    msg = strings.Replace(msg, "\t", "    ", -1)
+    msg = strings.Replace(msg, "\f", "    ", -1)
+    msg = strings.Replace(msg, "\v", "    ", -1)
+
     entry = AdbLineEntry{
         Date:  strings.TrimSpace(matches[1]),
         Time:  strings.TrimSpace(matches[2]),
@@ -43,7 +49,7 @@ func ParseLogcatLine(line string) (entry AdbLineEntry, err error) {
         TID:   strings.TrimSpace(matches[4]),
         Level: strings.TrimSpace(matches[5]),
         Tag:   strings.TrimSpace(matches[6]),
-        Message:   strings.TrimRight(strings.Replace(strings.TrimSpace(matches[7]), "\r", "", -1), "\n"),
+        Message:   strings.TrimRight(msg, "\n"),
     }
 
     return entry, err
